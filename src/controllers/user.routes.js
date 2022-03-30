@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userRepository = require('../models/user-repository');
+const {body, validationResult} = require("express-validator");
 const guard = require('express-jwt-permissions')({
   permissionsProperty: 'roles',
 });
@@ -22,7 +23,12 @@ router.get('/:firstName', guard.check(adminOrMemberRoles), (req, res) => {
   res.send(foundUser);
 });
 
-router.post('/', guard.check(adminRole), (req, res) => {
+router.post('/', body('firstName').isString(), body('lastName').isString(), body('password').isLength({min : 8}), guard.check(adminRole), (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const existingUser = userRepository.getUserByFirstName(req.body.firstName);
 
   if (existingUser) {
