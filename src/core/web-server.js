@@ -6,6 +6,7 @@ const authRoutes = require('../controllers/auth.routes');
 class WebServer {
   app = undefined;
   port = 3000;
+  server = undefined;
 
   constructor() {
     this.app = express();
@@ -16,9 +17,13 @@ class WebServer {
   }
 
   start() {
-    this.app.listen(this.port, () => {
+    this.server = this.app.listen(this.port, () => {
       console.log(`Example app listening on port ${this.port}`);
     });
+  }
+
+  stop(){
+    this.server.close();
   }
 
   _initializeRoutes() {
